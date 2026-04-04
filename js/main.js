@@ -1,67 +1,78 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
 // ========================================
-// RiftBuddy Pre-release JavaScript
-// Supabase integration + localStorage voting
+// RiftBuddy — vanilla JS, no dependencies
+// Supabase REST API via fetch()
 // ========================================
 
 const SUPABASE_URL = 'https://tfrtuagccocllridypls.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmcnR1YWdjY29jbGxyaWR5cGxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTY2NzAsImV4cCI6MjA5MDg3MjY3MH0.0KtXPEg5Sn-8q-fdkQinPhDKFo81zf3kgV8YSkscFhk';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmcnR1YWdjY29jbGxyaWR5cGxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTY2NzAsImV4cCI6MjA5MDg3MjY3MH0.0KtXPEg5Sn-8q-fdkQinPhDKFo81zf3kgV8YSkscFhk';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Prefer': 'return=minimal'
+};
+
+function dbInsert(table, data) {
+  return fetch(SUPABASE_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: HEADERS,
+    body: JSON.stringify(data)
+  });
+}
 
 // ========================================
-// Waitlist Form Handler
+// Waitlist form
 // ========================================
 const waitlistForm = document.getElementById('waitlist-form');
-const emailInput = document.getElementById('email-input');
-const formMessage = document.getElementById('form-message');
+const emailInput   = document.getElementById('email-input');
+const formMessage  = document.getElementById('form-message');
 
-waitlistForm.addEventListener('submit', async (e) => {
+waitlistForm.addEventListener('submit', async function(e) {
   e.preventDefault();
 
   const email = emailInput.value.trim();
-  const submitButton = waitlistForm.querySelector('button[type="submit"]');
+  if (!email || !email.includes('@')) {
+    emailInput.style.borderColor = '#EF4444';
+    emailInput.focus();
+    return;
+  }
+  emailInput.style.borderColor = '';
 
-  submitButton.disabled = true;
+  const btn = waitlistForm.querySelector('button[type="submit"]');
+  btn.disabled = true;
   formMessage.textContent = '';
   formMessage.className = 'form-message';
 
   try {
-    const { data, error } = await supabase
-      .from('waitlist')
-      .insert([{ email }])
-      .select();
-
-    if (error) {
-      if (error.code === '23505') {
-        formMessage.textContent = "You're already on the waitlist!";
-        formMessage.classList.add('success');
-      } else {
-        throw error;
-      }
-    } else {
-      formMessage.textContent = "🤜🤛 You're on the list! We'll let you know when RiftBuddy launches.";
+    const res = await dbInsert('waitlist', { email });
+    if (res.status === 409 || res.status === 422) {
+      formMessage.textContent = "You're already on the waitlist!";
+      formMessage.classList.add('success');
+    } else if (res.ok || res.status === 201) {
+      formMessage.textContent = "\uD83E\uDD1C\uD83E\uDD1B You're on the list! We'll let you know when RiftBuddy launches.";
       formMessage.classList.add('success');
       emailInput.value = '';
+    } else {
+      throw new Error('status ' + res.status);
     }
-  } catch (error) {
-    console.error('Waitlist error:', error);
+  } catch (err) {
+    console.error('Waitlist error:', err);
     formMessage.textContent = 'Oops! Something went wrong. Try again?';
     formMessage.classList.add('error');
   } finally {
-    submitButton.disabled = false;
+    btn.disabled = false;
   }
 });
 
 // ========================================
-// Feature Voting Handler
+// Vote buttons
 // ========================================
-const STORAGE_KEY = 'riftbuddy_votes';
+var STORAGE_KEY = 'riftbuddy_votes';
 
 function loadVotes() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? JSON.parse(stored) : {};
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch (e) { return {}; }
 }
 
 function saveVotes(votes) {
@@ -69,56 +80,45 @@ function saveVotes(votes) {
 }
 
 function restoreVoteStates() {
-  const votes = loadVotes();
-  Object.keys(votes).forEach(feature => {
-    const voteType = votes[feature];
-    const card = document.querySelector(`.feature-card[data-feature="${feature}"]`);
-    if (card) {
-      card.querySelectorAll('.vote-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.vote === voteType);
-      });
-    }
+  var votes = loadVotes();
+  Object.keys(votes).forEach(function(feature) {
+    var card = document.querySelector('.feature-card[data-feature="' + feature + '"]');
+    if (!card) return;
+    card.querySelectorAll('.vote-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.vote === votes[feature]);
+    });
   });
 }
 
-document.querySelectorAll('.vote-btn').forEach(button => {
-  button.addEventListener('click', async (e) => {
-    const btn = e.currentTarget;
-    const card = btn.closest('.feature-card');
-    const feature = card.dataset.feature;
-    const voteType = btn.dataset.vote;
+document.querySelectorAll('.vote-btn').forEach(function(btn) {
+  btn.addEventListener('click', async function(e) {
+    e.preventDefault();
+    var button  = e.currentTarget;
+    var card    = button.closest('.feature-card');
+    var feature = card.dataset.feature;
+    var voteType = button.dataset.vote;
+    var votes   = loadVotes();
+    var buttons = card.querySelectorAll('.vote-btn');
 
-    const votes = loadVotes();
-    const previousVote = votes[feature];
-
-    // Clicking same button again → deselect
-    if (previousVote === voteType) {
+    // Same button clicked again → deselect
+    if (votes[feature] === voteType) {
       delete votes[feature];
       saveVotes(votes);
-      card.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('active'));
+      buttons.forEach(function(b) { b.classList.remove('active'); });
       return;
     }
 
-    const buttons = card.querySelectorAll('.vote-btn');
-    buttons.forEach(b => b.disabled = true);
+    // Optimistic UI update first
+    votes[feature] = voteType;
+    saveVotes(votes);
+    buttons.forEach(function(b) { b.classList.remove('active'); });
+    button.classList.add('active');
 
+    // Then send to Supabase (fire and forget)
     try {
-      const { error } = await supabase
-        .from('votes')
-        .insert([{ feature, vote_type: voteType }]);
-
-      if (error) throw error;
-
-      votes[feature] = voteType;
-      saveVotes(votes);
-
-      buttons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-    } catch (error) {
-      console.error('Vote error:', error);
-    } finally {
-      buttons.forEach(b => b.disabled = false);
+      await dbInsert('votes', { feature: feature, vote_type: voteType });
+    } catch (err) {
+      console.error('Vote error:', err);
     }
   });
 });
@@ -126,42 +126,42 @@ document.querySelectorAll('.vote-btn').forEach(button => {
 restoreVoteStates();
 
 // ========================================
-// Feedback Form Handler
+// Feedback form
 // ========================================
-const feedbackForm = document.getElementById('feedback-form');
-const feedbackMessage = document.getElementById('feedback-message');
-const feedbackEmail = document.getElementById('feedback-email');
-const feedbackStatus = document.getElementById('feedback-message-status');
+var feedbackForm    = document.getElementById('feedback-form');
+var feedbackMessage = document.getElementById('feedback-message');
+var feedbackStatus  = document.getElementById('feedback-message-status');
 
-feedbackForm.addEventListener('submit', async (e) => {
+feedbackForm.addEventListener('submit', async function(e) {
   e.preventDefault();
 
-  const message = feedbackMessage.value.trim();
-  const email = feedbackEmail.value.trim() || null;
-  const submitButton = feedbackForm.querySelector('button[type="submit"]');
+  var message = feedbackMessage.value.trim();
+  if (!message) {
+    feedbackMessage.style.borderColor = '#EF4444';
+    feedbackMessage.focus();
+    return;
+  }
+  feedbackMessage.style.borderColor = '';
 
-  submitButton.disabled = true;
+  var btn = feedbackForm.querySelector('button[type="submit"]');
+  btn.disabled = true;
   feedbackStatus.textContent = '';
   feedbackStatus.className = 'form-message';
 
   try {
-    const { error } = await supabase
-      .from('feedback')
-      .insert([{ message, email }]);
-
-    if (error) throw error;
-
-    feedbackStatus.textContent = '🤜🤛 Thanks for the idea! We read every single one.';
-    feedbackStatus.classList.add('success');
-    feedbackMessage.value = '';
-
-  } catch (error) {
-    console.error('Feedback error:', error);
+    var res = await dbInsert('feedback', { message: message });
+    if (res.ok || res.status === 201) {
+      feedbackStatus.textContent = '\uD83E\uDD1C\uD83E\uDD1B Thanks for the idea! We read every single one.';
+      feedbackStatus.classList.add('success');
+      feedbackMessage.value = '';
+    } else {
+      throw new Error('status ' + res.status);
+    }
+  } catch (err) {
+    console.error('Feedback error:', err);
     feedbackStatus.textContent = 'Oops! Something went wrong. Try again?';
     feedbackStatus.classList.add('error');
   } finally {
-    submitButton.disabled = false;
+    btn.disabled = false;
   }
 });
-
-console.log('🎮 RiftBuddy pre-release page loaded');

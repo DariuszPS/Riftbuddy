@@ -525,7 +525,7 @@ footer {
     <h1>Your <span class="accent">Riftbound</span> Companion<br>is coming <span class="accent">soon</span>.</h1>
     <p class="hero-sub">Search cards, build decks, find events near you.<br>Build by player for players.</p>
 
-    <form class="email-signup" id="waitlist-form">
+    <form class="email-signup" id="waitlist-form" onsubmit="return false">
       <div class="email-row">
         <input type="email" id="email-input" placeholder="Your email...">
         <button type="submit">Sign up</button>
@@ -548,9 +548,9 @@ footer {
           <p class="feat-desc">Find any Riftbound card instantly. Search by name, keyword, effect text, or artist. Filter by domain, rarity, type, and energy cost</p>
         </div>
         <div class="feat-votes">
-          <button class="vote-btn" data-vote="hot">🔥 Need this now</button>
-          <button class="vote-btn" data-vote="wait">👊 Can't wait</button>
-          <button class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
+          <button type="button" class="vote-btn" data-vote="hot">🔥 Need this now</button>
+          <button type="button" class="vote-btn" data-vote="wait">👊 Can't wait</button>
+          <button type="button" class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
         </div>
       </div>
 
@@ -560,9 +560,9 @@ footer {
           <p class="feat-desc">Build, edit, and save your decks without losing your work. Live legality checker, energy curve visualization, and one-click import/export.</p>
         </div>
         <div class="feat-votes">
-          <button class="vote-btn" data-vote="hot">🔥 Need this now</button>
-          <button class="vote-btn" data-vote="wait">👊 Can't wait</button>
-          <button class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
+          <button type="button" class="vote-btn" data-vote="hot">🔥 Need this now</button>
+          <button type="button" class="vote-btn" data-vote="wait">👊 Can't wait</button>
+          <button type="button" class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
         </div>
       </div>
 
@@ -572,9 +572,9 @@ footer {
           <p class="feat-desc">Point your camera at any physical card and RiftBuddy identifies it instantly. Jump straight to Card Detail, add it to a deck, or save it to your collection.</p>
         </div>
         <div class="feat-votes">
-          <button class="vote-btn" data-vote="hot">🔥 Need this now</button>
-          <button class="vote-btn" data-vote="wait">👊 Can't wait</button>
-          <button class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
+          <button type="button" class="vote-btn" data-vote="hot">🔥 Need this now</button>
+          <button type="button" class="vote-btn" data-vote="wait">👊 Can't wait</button>
+          <button type="button" class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
         </div>
       </div>
     </div>
@@ -586,9 +586,9 @@ footer {
           <p class="feat-desc">Find Nexus Nights, Summoner Skirmishes, and Regional Qualifiers near you. See dates, locations, and get directions all without leaving the app.</p>
         </div>
         <div class="feat-votes">
-          <button class="vote-btn" data-vote="hot">🔥 Need this now</button>
-          <button class="vote-btn" data-vote="wait">👊 Can't wait</button>
-          <button class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
+          <button type="button" class="vote-btn" data-vote="hot">🔥 Need this now</button>
+          <button type="button" class="vote-btn" data-vote="wait">👊 Can't wait</button>
+          <button type="button" class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
         </div>
       </div>
 
@@ -598,9 +598,9 @@ footer {
           <p class="feat-desc">Every keyword, explained. Tap any keyword directly from a card's effect text and instantly see what it means.</p>
         </div>
         <div class="feat-votes">
-          <button class="vote-btn" data-vote="hot">🔥 Need this now</button>
-          <button class="vote-btn" data-vote="wait">👊 Can't wait</button>
-          <button class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
+          <button type="button" class="vote-btn" data-vote="hot">🔥 Need this now</button>
+          <button type="button" class="vote-btn" data-vote="wait">👊 Can't wait</button>
+          <button type="button" class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
         </div>
       </div>
 
@@ -610,9 +610,9 @@ footer {
           <p class="feat-desc">See what's winning. Browse community picks and tournament results, explore top decklists, and copy any build straight into your deck builder.</p>
         </div>
         <div class="feat-votes">
-          <button class="vote-btn" data-vote="hot">🔥 Need this now</button>
-          <button class="vote-btn" data-vote="wait">👊 Can't wait</button>
-          <button class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
+          <button type="button" class="vote-btn" data-vote="hot">🔥 Need this now</button>
+          <button type="button" class="vote-btn" data-vote="wait">👊 Can't wait</button>
+          <button type="button" class="vote-btn" data-vote="meh">🤷‍♂️ Meh</button>
         </div>
       </div>
     </div>
@@ -629,7 +629,7 @@ footer {
     <h2>Got <span class="accent">ideas</span>?<br><span class="accent">We're</span> listening.</h2>
     <p class="ideas-sub">Tell us what you'd love to see in RiftBuddy.<br>Every suggestion goes straight to brainstorm!</p>
 
-    <form class="ideas-form-wrap" id="feedback-form">
+    <form class="ideas-form-wrap" id="feedback-form" onsubmit="return false">
       <textarea id="feedback-message" placeholder="What feature would make RiftBuddy essential for you?"></textarea>
       <input type="email" id="feedback-email" style="display:none">
       <button type="submit">Submit</button>
@@ -648,7 +648,7 @@ footer {
   <p class="footer-legal">RiftBuddy was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</p>
 </footer>
 
-<script type="module" src="js/main.js"></script>
+<script src="js/main.js"></script>
 
 </body>
 </html>
