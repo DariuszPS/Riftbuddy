@@ -1,0 +1,6 @@
+# robots.txt for RiftBuddy
+
+User-agent: *
+Allow: /
+
+Sitemap: https://riftbuddy.app/sitemap.xml
